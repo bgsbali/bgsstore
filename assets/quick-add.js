@@ -56,7 +56,9 @@ if (!customElements.get('quick-add-modal')) {
           newScriptTag.setAttribute(attribute.name, attribute.value)
         });
         newScriptTag.appendChild(document.createTextNode(oldScriptTag.innerHTML));
-        oldScriptTag.parentNode.replaceChild(newScriptTag, oldScriptTag);
+        if (oldScriptTag.parentNode) {
+          oldScriptTag.parentNode.replaceChild(newScriptTag, oldScriptTag);
+        }
       });
     }
 
