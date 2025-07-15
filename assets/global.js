@@ -8,7 +8,9 @@ function getFocusableElements(container) {
 
 document.querySelectorAll('[id^="Details-"] summary').forEach((summary) => {
   summary.setAttribute('role', 'button');
-  summary.setAttribute('aria-expanded', summary.parentNode.hasAttribute('open'));
+  if (summary.parentNode) {
+    summary.setAttribute('aria-expanded', summary.parentNode.hasAttribute('open'));
+  }
 
   if(summary.nextElementSibling.getAttribute('id')) {
     summary.setAttribute('aria-controls', summary.nextElementSibling.id);
@@ -19,7 +21,9 @@ document.querySelectorAll('[id^="Details-"] summary').forEach((summary) => {
   });
 
   if (summary.closest('header-drawer')) return;
-  summary.parentElement.addEventListener('keyup', onKeyUpEscape);
+  if (summary.parentElement) {
+    summary.parentElement.addEventListener('keyup', onKeyUpEscape);
+  }
 });
 
 const trapFocusHandlers = {};
@@ -311,6 +315,7 @@ class MenuDrawer extends HTMLElement {
   onSummaryClick(event) {
     const summaryElement = event.currentTarget;
     const detailsElement = summaryElement.parentNode;
+    if (!detailsElement) return;
     const parentMenuElement = detailsElement.closest('.has-submenu');
     const isOpen = detailsElement.hasAttribute('open');
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
