@@ -417,7 +417,8 @@
   },
   "platform_customizations": {
     "custom_css": [
-      "body,.gradient {background: #fff !important; color: #111}"
+      "body,.gradient {background: #fff !important; color: #111;}",
+      ".announcement-bar-section .gradient {background: #333 !important; color: #333 !important;}"
     ]
   }
 }
