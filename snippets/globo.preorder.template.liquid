@@ -1,0 +1,657 @@
+{% raw %}
+<script id="globo_preorder_partial_payment_template" type="text/template">
+  {% assign show = false %}
+  {% if config.fullPayment.enable and config.fullPayment.discountValue > 0 %}
+    {% assign show = true %}
+  {% endif %}
+  {% if config.partialPayment.enable %}
+    {% assign show = true %}
+  {% endif %}
+  {% if show %}
+  <div class="gPreorderPartialPaymentWrapper">
+    {% if config.fullPayment.discountValue > 0 or config.partialPayment.discountValue > 0 %}
+    <div class="gPreorderPrice">
+      {{translation.preorderPrice | default: 'PreOrder Price: '}}
+      <span class="gPreorderPriceHtml">{% if config.fullPayment.enable %}{{ full_price | money_without_trailing_zeros }}{% elsif config.partialPayment.enable %}{{ partial_discounted_price | money_without_trailing_zeros }}{% endif %}</span>
+    </div>
+    {% endif %}
+    {% if config.fullPayment.enable or config.partialPayment.enable %}
+    <div class="gPreorderPartialPaymentLabel">{{translation.partialPaymentLabel | default: 'Payment option'}}</div>
+    <div class="gPreorderPartialPayment">
+      <ul class="gPreorderPartialPaymentChoices">
+        {% if config.fullPayment.enable %}
+        <li>
+          <label for="fullPayment-{{randomID}}">
+            <span class="gPreorderPartialPaymentControl">
+              <span class="gPreorderPartialPaymentRadioButton">
+                <input checked name="{{properties.partial_payment}}" id="fullPayment-{{randomID}}" type="radio" class="gPreorderPartialPaymentInput" data-priceHTML="{{full_price | money_without_trailing_zeros | escape}}" data-discount-type="{{config.fullPayment.discountType}}" data-discount-value="{{config.fullPayment.discountValue}}" value="full">
+                <span class="gPreorderPartialPaymentBackdrop"></span>
+                <span class="gPreorderPartialPaymentIcon"></span>
+              </span>
+            </span>
+            <span class="gPreorderPartialPaymentLabel">{{translation.partialPaymentOptionFull | default: 'Full Payment'}}</span>
+          </label>
+        </li>
+        {% endif %}
+        {% if config.partialPayment.enable %}
+        <li>
+          <label for="partialPayment-{{randomID}}">
+            <span class="gPreorderPartialPaymentControl">
+              <span class="gPreorderPartialPaymentRadioButton">
+                <input {% unless config.fullPayment.enable %}checked{% endunless %} name="{{properties.partial_payment}}" id="partialPayment-{{randomID}}" type="radio" class="gPreorderPartialPaymentInput" data-priceHTML="{{partial_discounted_price | money_without_trailing_zeros | escape}}" data-discount-type="{{config.partialPayment.discountType}}" data-discount-value="{{config.partialPayment.discountValue}}" value="part">
+                <span class="gPreorderPartialPaymentBackdrop"></span>
+                <span class="gPreorderPartialPaymentIcon"></span>
+              </span>
+            </span>
+            <span class="gPreorderPartialPaymentLabel">{{translation.partialPaymentOptionPart | default: 'Partial Payment'}} <span>{{ partial_price | money_without_trailing_zeros }}</span></span>
+          </label>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</script>
+<script id="globo_preorder_cart_mixed_template" type="text/template">
+  {% if translation.cartWarningTitle or translation.cartWarningContent %}
+  <div id="Globo-Modal">
+    <div>
+      <div class="Globo-Modal-Dialog__Container">
+        <div>
+          <div tabindex="-1" class="Globo-Modal-Dialog">
+            <div class="Globo-Modal-Dialog__Modal">
+              <div class="Globo-Modal-Header">
+                <div class="Globo-Modal-Header__Title">
+                  <h4 class="Globo-DisplayText Globo-DisplayText--sizeSmall">{{translation.cartWarningTitle}}</h4>
+                </div>
+                <button class="Globo-Modal-CloseButton">
+                  <span class="Globo-Icon Globo-Icon--colorInkLighter Globo-Icon--isColored"><svg viewBox="0 0 20 20" class="Globo-Icon__Svg" focusable="false" aria-hidden="true"><path d="M11.414 10l6.293-6.293a.999.999 0 1 0-1.414-1.414L10 8.586 3.707 2.293a.999.999 0 1 0-1.414 1.414L8.586 10l-6.293 6.293a.999.999 0 1 0 1.414 1.414L10 11.414l6.293 6.293a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L11.414 10z" fill-rule="evenodd"></path></svg></span>
+                </button>
+              </div>
+              <div class="Globo-Modal__BodyWrapper">
+                <div class="Globo-Modal__Body Globo-Scrollable">
+                  <section class="Globo-Modal-Section">
+                    <div class="Globo-TextContainer">
+                      {{translation.cartWarningContent}}
+                      {% if translation.cartWarningCheckboxLabel %}
+                      <div>
+                        <label for="Globo-Modal-Checkbox">
+                          <input type="checkbox" id="Globo-Modal-Checkbox" />
+                          {{translation.cartWarningCheckboxLabel}}
+                        </label>
+                      </div>
+                      {% endif %}
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="Globo-Backdrop"></div>
+  </div>
+  {% endif %}
+</script>
+
+<script id="globo_preorder_bis_form_template" type="text/template">
+  {% unless config.customBisForm.display contains 'hidden' %}
+    {% assign display = config.customBisForm.display %}
+    {% if form == 'grid' %}
+      {% assign display = 'button' %}
+    {% endif %}
+    <div id="Globo-Back-In-Stock">
+      {% if display == 'button' %}
+        <div class="gBackInStock-Button">
+          <button class="gBackInStockBtn" type="button">{{translation.bisTextButton}}</button>
+        </div>
+      {% endif %}
+
+      {% if display == 'form' %}
+      <div class="Globo-form Globo-form-inline" data-product-id="{{product.id}}">
+        <div class="Globo-form-subscribe">
+            {% unless config.hiddenLogoBis %}
+              {% assign graphic = config.graphic | default: '' %}
+              {% assign graphicUrl = filesUrl | append: graphic %}
+              <div class="Globo-form-header {% if graphic != '' and graphic != null %}Globo-header-upload{% else %}Globo-header-default{% endif %}">
+                <div class="Globo-header-background">
+                  <img src="{% if graphic != '' and graphic != null %}{{ graphicUrl }}{% else %}{{ advancedSettings.bisImageHeaderCenter }}{% endif %}" >
+                </div>
+                {% if graphic == '' or graphic == null %}
+                  {% if advancedSettings.bisImageHeaderLeft %}
+                    <div class="Globo-header-img-left" style="background-image: url({{ advancedSettings.bisImageHeaderLeft }})"></div>
+                  {% endif %}
+                  {% if advancedSettings.bisImageHeaderRight %}
+                  <div class="Globo-header-img-right" style="background-image: url({{ advancedSettings.bisImageHeaderRight }})"></div>
+                  {% endif %}
+                {% endif %}
+              </div>
+            {% endunless %}
+            
+            <div class="Globo-form-body {% if config.hiddenLogoBis %}Form-hidden-logo{% endif %}">
+              {% assign hiddenHeaderBis = config.hiddenHeaderBis | default: false %}
+              {% assign hiddenHeaderDescriptionBis = config.hiddenHeaderDescriptionBis | default: false %}
+
+              {% unless hiddenHeaderBis and hiddenHeaderDescriptionBis %}
+                {% if translation.bisTitleForm or translation.bisHeaderContent %}
+                    <div class="Globo-body-header">
+                      {% unless hiddenHeaderBis %} {% if translation.bisTitleForm %}<h2>{{ translation.bisTitleForm }}</h2>{% endif %} {% endunless %}
+                      {% unless hiddenHeaderDescriptionBis %} {% if translation.bisHeaderContent %}<p>{{ translation.bisHeaderContent }}</p>{% endif %} {% endunless %}
+                    </div>
+                {% endif %}
+              {% endunless %}
+
+              <div class="Globo-body-content">
+                  {% assign hiddenProductInfor = config.hiddenProductInfor | default: false %}
+                  {% assign hiddenProductImage = config.hiddenProductImage | default: false %}
+                  {% assign hiddenProductPrice = config.hiddenProductPrice | default: false %}
+
+                  {% unless hiddenProductInfor %}
+                    <div class="Globo-content-product">
+                        {% unless hiddenProductImage %}<div class="Globo-product-img"><img src="{{ variant.img }}" alt="" ></div> {% endunless %}
+                        <div class="Globo-product-infor">
+                            <p class="Globo-product-title">{{ product.title}}{% unless variant.title contains 'Default Title' %} ( <span class="Globo-variant-title">{{variant.title}}</span> ) {% endunless %}</p>
+                            {% unless hiddenProductPrice %}<p class="Globo-product-price">{{ variant.price | money_without_trailing_zeros }}</p>{% endunless %}
+                        </div>
+                    </div>
+                  {% endunless %}
+
+                  <div class="Globo-content-form">
+                      <input type="hidden" name="variant_id" class="gBackInStock-Form-Variant-Id" id="gBackInStock-Form-Variant-Id-{{variant.id}}" value="{{variant.id}}" />
+                      {% assign templateNotification = config.templateNotification | default: 'both' %}
+                      {% assign showBisEmail = config.showBisEmail | default: true, allow_false: true %}
+                      {% assign showBisSms = config.showBisSms | default: false, allow_false: true %}
+                      {% assign notificationType = config.notificationType | default: 'email' %}
+                      {% assign bisEmailAlertTitle = translation.bisEmailAlertTitle | default: 'Email' %}
+                      {% assign bisSmsAlertTitle = translation.bisSmsAlertTitle | default: 'SMS' %}
+
+                      {% if templateNotification == 'both' and showBisEmail and showBisSms %}
+                          <div class='Globo-nofitication-type'>
+                              <div class="Globo-type-group {% if notificationType == 'email' %}Globo-type-active{% endif %}"><p class="Globo-type-title" data-notification-type="email">{{ bisEmailAlertTitle }}</p></div>
+                              <div class="Globo-type-group {% if notificationType == 'sms' %}Globo-type-active{% endif %}"><p class="Globo-type-title" data-notification-type="sms">{{ bisSmsAlertTitle }}</p></div>
+                          </div>
+                      {% endif %}
+                      {% for field in config.fieldsBisForm %}
+                        {{ field | renderElement : translation, variant, config, product }}
+                      {% endfor %}
+                      <input type="hidden" name="keyLabel" value="" />
+                      <button type="button" 
+                        class="gSubscribeBtn {% if variant.inventory_quantity <= 0 and variant.available == config.checkSelling %} gEnableSubscribe gStopSellingProduct {% elsif variant.inventory_quantity <=0 and config.checkSelling contains 'both' %} gEnableSubscribe gBothSellingProduct {% else %} gDisableSubscribe {% endif %}" 
+                        onclick="this.classList.toggle('button--loading')"
+                      >
+                        <span class="gSubscribeBtn-Text">{{translation.bisSubscribeTextButton}}</span>
+                      </button>
+                  </div>
+              </div>
+              <div class="Globo-body-footer">
+                {% assign hiddenFooterBis = config.hiddenFooterBis | default: false %}
+                {% unless hiddenFooterBis %}
+                  {% if translation.bisFooterContent %}<p class="Globo-footer-message">{{ translation.bisFooterContent }}</p>{% endif %}
+                {% endunless %}
+                <div class="gBackInStock-Form-Message gBackInStock-Message-Hidden">
+                    <p class="gBackInStock-Message"></p>
+                    <p class="gBackInStock-Message-Dismiss"><svg viewBox="0 0 20 20" class="" focusable="false" aria-hidden="true"><path d="M11.414 10l4.293-4.293a.999.999 0 1 0-1.414-1.414L10 8.586 5.707 4.293a.999.999 0 1 0-1.414 1.414L8.586 10l-4.293 4.293a.999.999 0 1 0 1.414 1.414L10 11.414l4.293 4.293a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L11.414 10z" fill-rule="evenodd"></path></svg></p>
+                </div>
+                {% assign removeBranding = config.removeBranding %}
+                {% unless removeBranding %}<p class="Globo-water-mark" style="display: block !important;">Made by <a href="https://apps.shopify.com/pre-order-pro" target="_blank">Globo Pre-Order</a></p>{% endunless %}
+              </div>
+            </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  {% endunless %}
+</script>
+
+<script id="globo_preorder_bis_popup_form_template" type="text/template">
+  <div id="Globo-Back-In-Stock">
+    <div>
+      <div class="Polaris-Modal-Dialog__Container active">
+        <div>
+          <div role="dialog" aria-labelledby="modal-header2" tab-index="-1" class="Polaris-Modal-Dialog">
+            <div class="Globo-form Globo-form-popup" data-product-id="{{product.id}}">
+                <div class="Globo-form-subscribe">
+                  {% unless config.hiddenLogoBis %}
+                    {% assign graphic = config.graphic | default: '' %}
+                    {% assign graphicUrl = filesUrl | append: graphic %}
+                    <div class="Globo-form-header {% if graphic != '' and graphic != null %}Globo-header-upload{% else %}Globo-header-default{% endif %}">
+                      <div class="Globo-header-background">
+                        <img src="{% if graphic != '' and graphic != null %}{{ graphicUrl }}{% else %}{{ advancedSettings.bisImageHeaderCenter }}{% endif %}" >
+                      </div>
+                      {% if graphic == '' or graphic == null %}
+                        {% if advancedSettings.bisImageHeaderLeft %}
+                          <div class="Globo-header-img-left" style="background-image: url({{ advancedSettings.bisImageHeaderLeft }})"></div>
+                        {% endif %}
+                        {% if advancedSettings.bisImageHeaderRight %}
+                          <div class="Globo-header-img-right" style="background-image: url({{ advancedSettings.bisImageHeaderRight }})"></div>
+                        {% endif %}
+                      {% endif %}
+                      <p class="Globo-header-close"><svg viewBox="0 0 20 20" focusable="false" aria-hidden="true"><path d="M11.414 10l4.293-4.293a.999.999 0 1 0-1.414-1.414L10 8.586 5.707 4.293a.999.999 0 1 0-1.414 1.414L8.586 10l-4.293 4.293a.999.999 0 1 0 1.414 1.414L10 11.414l4.293 4.293a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L11.414 10z" fillRule="evenodd"></path></svg></p>
+                    </div>
+                  {% endunless %}
+                  
+                  <div class="Globo-form-body {% if config.hiddenLogoBis %}Form-hidden-logo{% endif %}">
+                    {% if config.hiddenLogoBis %}<p class="Globo-header-close"><svg viewBox="0 0 20 20" focusable="false" aria-hidden="true"><path d="M11.414 10l4.293-4.293a.999.999 0 1 0-1.414-1.414L10 8.586 5.707 4.293a.999.999 0 1 0-1.414 1.414L8.586 10l-4.293 4.293a.999.999 0 1 0 1.414 1.414L10 11.414l4.293 4.293a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L11.414 10z" fillRule="evenodd"></path></svg></p>{% endif %}
+                    {% assign hiddenHeaderBis = config.hiddenHeaderBis | default: false %}
+                    {% assign hiddenHeaderDescriptionBis = config.hiddenHeaderDescriptionBis | default: false %}
+                    
+                    {% unless hiddenHeaderBis and hiddenHeaderDescriptionBis %}
+                        {% if translation.bisTitleForm or translation.bisHeaderContent %}
+                            <div class="Globo-body-header">
+                                {% unless hiddenHeaderBis %} {% if translation.bisTitleForm %}<h2>{{ translation.bisTitleForm }}</h2>{% endif %} {% endunless %}
+                                {% unless hiddenHeaderDescriptionBis %} {% if translation.bisHeaderContent %}<p>{{ translation.bisHeaderContent }}</p>{% endif %} {% endunless %}
+                            </div>
+                        {% endif %}
+                    {% endunless %}
+
+                    <div class="Globo-body-content">
+                        {% assign hiddenProductInfor = config.hiddenProductInfor | default: false %}
+                        {% assign hiddenProductImage = config.hiddenProductImage | default: false %}
+                        {% assign hiddenProductPrice = config.hiddenProductPrice | default: false %}
+
+                        {% unless hiddenProductInfor %}
+                          <div class="Globo-content-product">
+                          {% unless showProductImage %}<div class="Globo-product-img"><img src="{{ variant.img }}" alt="" /></div>{% endunless %}
+                              <div class="Globo-product-infor">
+                                <p class="Globo-product-title">{{ product.title }}{% unless variant.title contains 'Default Title' %} ( <span class="Globo-variant-title">{{variant.title}}</span> ) {% endunless %}</p>
+                                {% unless hiddenProductPrice %}<p class="Globo-product-price">{{ variant.price | money_without_trailing_zeros }}</p>{% endunless %}
+                              </div>
+                          </div>
+                        {% endunless %}
+
+                        <div class="Globo-content-form">
+                          <input type="hidden" name="variant_id" class="gBackInStock-Form-Variant-Id" id="gBackInStock-Form-Variant-Id-{{variant.id}}" value="{{variant.id}}" />
+                          {% for field in config.fieldsBisForm %}
+                            {{ field | renderElement : translation, variant, config, product }}
+                          {% endfor %}
+                          <input type="hidden" name="keyLabel" value="" />
+                          <button type="button" 
+                          class="gSubscribeBtn {% if variant.inventory_quantity <= 0 and variant.available == config.checkSelling %} gEnableSubscribe gStopSellingProduct {% elsif variant.inventory_quantity <=0 and config.checkSelling contains 'both' %} gEnableSubscribe gBothSellingProduct {% else %} gDisableSubscribe {% endif %}"  
+                            onclick="this.classList.toggle('button--loading')"
+                          >
+                            <span class="gSubscribeBtn-Text">{{translation.bisSubscribeTextButton}}</span>
+                          </button>
+                      </div>
+                    </div>
+                    <div class="Globo-body-footer">
+                      {% assign hiddenFooterBis = config.hiddenFooterBis | default: false %}
+                      {% unless hiddenFooterBis %}
+                        {% if translation.bisFooterContent %}<p class="Globo-footer-message">{{ translation.bisFooterContent }}</p>{% endif %}
+                      {% endunless %}
+                      <div class="gBackInStock-Form-Message gBackInStock-Message-Hidden">
+                          <p class="gBackInStock-Message"></p>
+                          <p class="gBackInStock-Message-Dismiss"><svg viewBox="0 0 20 20" class="" focusable="false" aria-hidden="true"><path d="M11.414 10l4.293-4.293a.999.999 0 1 0-1.414-1.414L10 8.586 5.707 4.293a.999.999 0 1 0-1.414 1.414L8.586 10l-4.293 4.293a.999.999 0 1 0 1.414 1.414L10 11.414l4.293 4.293a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L11.414 10z" fill-rule="evenodd"></path></svg></p>
+                      </div>
+                      {% assign removeBranding = config.removeBranding %}
+                      {% unless removeBranding %}<p class="Globo-water-mark" style="display: block !important;">Made by <a href="https://apps.shopify.com/pre-order-pro" target="_blank">Globo Pre-Order</a></p>{% endunless %}
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="Globo-Backdrop"></div>
+  </div>
+</script>
+
+<script id="globo_preorder_cart_line_item_template" type="text/template">
+  <div class='gPreorderLineItem'>
+    <div class="gPreorderLineItem-Icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16"> <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/> <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/> </svg>
+    </div>
+    <div class="gPreorderLineItem-Label">
+        <div class="gPreorderLineItem-Content">{{ lineItem }}</div>
+        {% assign showContactLink = config.cart.showContactLink | default: false, allow_false: true %}
+        {% if showContactLink %}
+            {% assign contactEmail = config.cart.contactEmail | default: shopEmail %}
+            {% assign contactSubject = config.cart.contactSubject | replace: " ", "%20" %}
+            {% assign contactMailto = "mailto:" | append: contactEmail | append: "?subject=" | append: contactSubject  %}
+            <div class="gPreorderLineItem-Contact">
+                <a href="{{ contactMailto }}" target="_blank" rel="noopener noreferrer">{{ translation.preorderContactLink | default: 'Reach out for more information →' }}</a>
+            </div>
+        {% endif %}
+    </div>
+  </div>
+</script>
+
+<script id="globo_preorder_dynamic_css_template" type="text/template">
+  {% assign font_style = 'normal' %}
+  {%  assign font_weight = 'font_weight' %}
+
+  {% if settings.badgeFontVariant contains 'italic' %}
+    {% assign font_style = 'italic' %}
+  {% endif %}
+
+  {%  assign font_weight_text = settings.badgeFontVariant | split: 'italic' %}
+  {%  assign font_weight_text = font_weight_text | strip %}
+
+  {% if font_weight_text == 'regular' %}
+    {%  assign font_weight = '400' %}
+  {% elsif font_weight_text == '900' %}
+    {%  assign font_weight = font_weight_text %}
+  {% else %}
+    {%  assign font_weight = '400' %}
+  {% endif %}
+
+  {% if settings.badgeFontFamily %}
+    @import  url("https://fonts.googleapis.com/css2?family={{ settings.badgeFontFamily }}:ital,wght@{% if font_style == 'italic' %}1{% else %}0{% endif %},{{ font_weight }}&display=swap");
+  {% endif %}
+
+  .gPreorderBtn{
+    background: {{ settings.colorButton.preorderBackgroundColor | default: '#F35046' }} !important;
+    color: {{ settings.colorButton.preorderTextColor | default: '#FFFFFF' }} !important;
+    border: 1px solid {{ settings.colorButton.preorderBorderColor | default: '#F35046' }} !important;
+  }
+  .gPreorderBtn:hover{
+    background: {{ settings.colorButton.preorderHoverBackgroundColor | default: '#D61F2C' }} !important;
+    color: {{ settings.colorButton.preorderHoverTextColor | default: '#FFFFFF' }} !important;
+    border: 1px solid {{ settings.colorButton.preorderHoverBorderColor | default: '#D61F2C' }} !important;
+  }
+  .gPreorderNAMessage{
+    background: {{ settings.colorNAMessage.naMessageBackgoundColor | default: '#FFFFFF' }} !important;
+    color: {{ settings.colorNAMessage.naMessageTextColor | default: '#606060' }} !important;
+    border: 1px solid {{ settings.colorNAMessage.naMessageBorderColor | default: '#3A3A3A' }} !important;
+    opacity: .7 !important;
+    pointer-events: none !important;
+  }
+  .gPreorderComingSoonBtn{
+    background: {{ settings.colorComingSoonButton.comingSoonBtnBackgoundColor | default: '#FFFFFF' }} !important;
+    color: {{ settings.colorComingSoonButton.comingSoonBtnTextColor | default: '#606060' }} !important;
+    border: 1px solid {{ settings.colorComingSoonButton.comingSoonBtnBorderColor | default: '#3A3A3A' }} !important;
+    opacity: .7 !important;
+    pointer-events: none !important;
+  }
+  .gPreorderTopMessage {
+    font-size: {{ settings.messageAboveFontSize | default: '14' }}px !important;
+    background: {{ settings.colorMessageAbove.messageAboveBackgoundColor | default: 'none' }} !important;
+    color: {{ settings.colorMessageAbove.messageAboveTextColor | default: '#EE4444' }} !important;
+    text-align: {{ settings.alignMessage.messageAbove | default: 'left' }} !important;
+  }
+  .gPreorderBottomMessage{
+    font-size: {{ settings.messageBellowFontSize | default: '14'}}px !important;
+    background: {{ settings.colorMessageBellow.messageBellowBackgoundColor | default: 'none' }} !important;
+    color: {{ settings.colorMessageBellow.messageBellowTextColor | default: '#555555' }} !important;
+    text-align: {{ settings.alignMessage.messageBellow | default: 'left' }} !important;
+  }
+  .gPreorderBadge{
+    font-size: {{ settings.badgeFontSize | default: '14'}}px !important;
+    {% if settings.badgeFontFamily %}
+        font-family: "{{ settings.badgeFontFamily | default: 'Helvetica Neue' }}", -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif !important;
+    {% endif %}
+    font-style: {{ font_style }} !important;
+    font-weight: {{ font_weight }} !important;
+    background: {{ settings.colorBadge.badgeBackgoundColor | default: '#F35046' }} !important;
+    color: {{ settings.colorBadge.badgeTextColor | default: '#FFFFFF' }} !important;
+    width: auto !important;
+    height: auto !important;
+  }
+  .gPreorderBadge.ribbon > span:first-child {
+    background: {{ settings.colorBadge.badgeBackgoundColor | default: '#F35046' }} !important;
+    color: {{ settings.colorBadge.badgeTextColor | default: '#FFFFFF' }} !important;
+  }
+  .gBackInStockBtn{
+    background: {{ settings.colorBisButton.bisBackgroundColor | default: '#529dbd' }} !important;
+    color: {{ settings.colorBisButton.bisTextColor | default: '#fff' }} !important;
+    border: 1px solid {{ settings.colorBisButton.bisBorderColor | default: '#529dbd' }} !important;
+    font-size: {{ settings.customBisForm.bisFontSize | default: '16' }}px !important;
+    font-weight: {{ settings.customBisForm.bisFontWeight | default: '400' }} !important;
+    border-radius: {{ settings.customBisForm.bisBorderRadius | default: '0' }}px !important;
+    padding: {{ settings.customBisForm.bisPadding | default: '10' }}px 30px !important;
+    font-family: inherit !important;
+  }
+  .gBackInStockBtn:hover{
+    background: {{ settings.colorBisButton.bisHoverBackgroundColor | default: '#529dbd' }} !important;
+    color: {{ settings.colorBisButton.bisHoverTextColor | default: '#fff' }} !important;
+    border: 1px solid {{ settings.colorBisButton.bisHoverBorderColor | default: '#529dbd' }} !important;
+  }
+  .gSubscribeBtn{
+    background: {{ settings.colorScButton.scBackgroundColor | default: '#64c264' }} !important;
+    color: {{ settings.colorScButton.scTextColor | default: '#fff' }} !important;
+    border: 1px solid {{ settings.colorScButton.scBorderColor | default: '#64c264' }} !important;
+    font-size: {{ settings.customBisForm.scFontSize | default: '16' }}px !important;
+    position: relative !important;
+    font-weight: {{ settings.customBisForm.scFontWeight | default: '400' }} !important;
+    border-radius: {{ settings.customBisForm.scBorderRadius | default: '0' }}px !important;
+    padding: {{ settings.customBisForm.scPadding | default: '10' }}px 30px !important;
+    font-family: inherit !important;
+  }
+  .gSubscribeBtn:hover{
+    background: {{ settings.colorScButton.scHoverBackgroundColor | default: '#25a825' }} !important;
+    color: {{ settings.colorScButton.scHoverTextColor | default: '#fff' }} !important;
+    border: 1px solid {{ settings.colorScButton.scHoverBorderColor | default: '#25a825' }} !important;
+  }
+  
+  .gPreorderWarning {
+    color: {{ settings.colorLimitMessage.limitMessageTextColor | default: '#000' }} !important;
+    border: 1px solid {{ settings.colorLimitMessage.limitMessageBorderColor | default: '#eec200' }} !important;
+    background-color: {{ settings.colorLimitMessage.limitMessageBackgroundColor | default: '#fdf7e3' }} !important;
+    font-size: {{ settings.fontsizeMessage.limitMessage | default: '14' }}px !important;
+    text-align: {{ settings.alignMessage.limitMessage | default: 'left' }} !important;
+    position: relative;
+    width: 100%;
+    clear: both;
+    padding: 5px 10px;
+    margin: 12px 0 5px;
+    transition: box-shadow .2s cubic-bezier(.64,0,.35,1);
+    transition-delay: .1s;
+  }
+
+  .gPreorderLineItem {
+    background-color: {{ settings.cart.lineItemBackgroundColor | default: '#c7ebfe' }} !important;
+    border: 1px solid {{ settings.cart.lineItemBorderColor | default: '#0788ca' }} !important;
+  }
+
+  .gPreorderLineItem-Label {
+    font-size: {{ settings.cart.lineItemFontSize | default: '14' }}px !important;
+    font-weight: {{ settings.cart.lineItemFontWeight | default: '400' }} !important;
+    color: {{ settings.cart.lineItemTextColor | default: '#00000' }} !important;
+  }
+
+  .gPreorderLineItem svg {
+    fill: {{ settings.cart.lineItemIconColor | default: '#0788ca' }} !important;
+  }
+
+  .gPreorderLabel {
+    background-color: {{ settings.preorderLabel.labelBackgroundColor | default: '#334fb4' }} !important;
+    border: 1px solid {{ settings.preorderLabel.labelBorderColor | default: '#334fb4' }} !important;
+    color: {{ settings.preorderLabel.labelTextColor | default: '#fff' }} !important;
+    font-size: {{ settings.preorderLabel.labelFontSize | default: '14' }}px !important;
+    font-weight: {{ settings.preorderLabel.labelFontWeight | default: '400' }} !important;
+  }
+</script>
+
+<script id="globo_preorder_element_template" type="text/template">
+  {% assign inlineOptionValue = field.inlineOptionValue | default: '1' | parseInt %}
+  {% assign inlineOptionClass = "gBackInStock-Item-" | append : inlineOptionValue | append : "-Column" %}
+
+  {% assign fieldLabel = field.id | append: "LabelBisForm" %}
+  {% assign fieldPlaceholder = field.id | append: "PlaceholderBisForm" %}
+
+  {% assign showRequired = field.showRequired | default: true, allow_false: true %}
+
+  {% assign showBisEmail = config.showBisEmail | default: true, allow_false: true %}
+  {% assign showBisSms = config.showBisSms | default: false, allow_false: true %}
+
+  {% case field.type %}
+      {% when 'email' %}
+        {% if showBisEmail %}
+          <div class="gBackInStock-Form-Control">
+              <label for="{{ field.id }}" class="gBackInStock-Label">
+                  {% if field.showLabel %} <span class="gBackInStock-Label-Content" data-label="{{ translation[fieldLabel] }}" data-placeholder="{{ fieldPlaceholder }}">{{ translation[fieldLabel] }}</span> {% endif %}
+                  {% if field.required and showRequired %} <span class="gBackInStock-Text-Danger gBackInStock-Text-Smaller"> *</span> {% endif %}
+              </label>
+              <input type="{{ field.type }}" name="{{ field.id }}" id="{{ field.id }}" class="gBackInStock-Form-Content-Input" placeholder="{{ translation[fieldPlaceholder] }}" {% if field.required %}presence{% endif %}
+                  {% if variant.inventory_quantity <= 0 and variant.available == config.checkSelling %}
+                      data-selling="stop" 
+                  {% elsif variant.inventory_quantity <= 0 and config.checkSelling contains 'both' %} 
+                      data-selling="both"
+                  {% else %} 
+                      data-selling="continue"
+                      disabled="disabled" 
+                  {% endif %} 
+              />
+              <small class='gBackInStock-messages'></small>
+          </div>
+        {% endif %}
+
+      {% when 'selectVariant' %}
+          <div class="gBackInStock-Form-Control {% if config.check_variant %}gPreorderHidden{% endif %}">
+              <label for="{{ field.id }}" class="gBackInStock-Label">
+                  {% if field.showLabel %} <span class="gBackInStock-Label-Content">{{ translation[fieldLabel] }}</span> {% endif %}
+                  {% if field.required and showRequired %} <span class="gBackInStock-Text-Danger gBackInStock-Text-Smaller"> *</span> {% endif %}
+              </label>
+              <select name="{{ field.id }}" id="{{ field.id }}" type="select" class="gBackInStock-Form-Select {% if config.check_variant %}gPreorderHidden{% endif %}" {% if field.required %}presence{% endif %}>
+                  {% if field.placeholder %} <option value="">{{ translation[fieldPlaceholder] }}</option> {% endif %}
+                  {% for v in product.variants %}
+                      <option 
+                          value="{{ v.id }}"
+                          {% if v.inventory_quantity <= 0 and v.available == config.checkSelling %} 
+                              data-selling="stop" 
+                          {% elsif v.inventory_quantity <= 0 and config.checkSelling contains 'both' %} 
+                              data-selling="both"
+                          {% else %}
+                              data-selling="continue"
+                              disabled= "disabled" 
+                          {% endif %}
+                          {% if v.id == variant.id %} selected="selected" {% endif %}
+                      >
+                          {{ v.title }} 
+                      </option>
+                  {% endfor %}
+              </select>
+              <small class='gBackInStock-messages'></small>
+          </div> 
+
+      {% when 'text' %}
+          <div class="gBackInStock-Form-Control">
+              <label for="{{ field.id }}" class="gBackInStock-Label">
+                  {% if field.showLabel %} <span class="gBackInStock-Label-Content">{{ translation[fieldLabel] }}</span> {% endif %}
+                  {% if field.required and showRequired %} <span class="gBackInStock-Text-Danger gBackInStock-Text-Smaller"> *</span> {% endif %}
+              </label>
+              <input type="{{ field.type }}" name="{{ field.id }}" id="{{ field.id }}" class="gBackInStock-Form-Content-Input" placeholder="{{ translation[fieldPlaceholder] }}" {% if field.required %}presence{% endif %} />
+              <small class='gBackInStock-messages'></small>
+          </div>
+
+      {% when 'textarea' %}
+          <div class="gBackInStock-Form-Control">
+              <label for="{{ field.id }}" class="gBackInStock-Label">
+                  {% if field.showLabel %} <span class="gBackInStock-Label-Content">{{ translation[fieldLabel] }}</span> {% endif %}
+                  {% if field.required and showRequired %} <span class="gBackInStock-Text-Danger gBackInStock-Text-Smaller"> *</span> {% endif %}
+              </label>
+              <textarea type="{{ field.type }}" name="{{ field.id }}" id="{{ field.id }}" class="gBackInStock-Form-Content-Textarea" placeholder="{{ translation[fieldPlaceholder] }}" {% if field.required %}presence{% endif %}></textarea>
+              <small class='gBackInStock-messages'></small>
+          </div>
+
+      {% when 'select' %}
+          {% assign options = field.options | stringToArray %}
+          <div class="gBackInStock-Form-Control">
+              <label for="{{ field.id }}" class="gBackInStock-Label">
+                  {% if field.showLabel %} <span class="gBackInStock-Label-Content">{{ translation[fieldLabel] }}</span> {% endif %}
+                  {% if field.required and showRequired %} <span class="gBackInStock-Text-Danger gBackInStock-Text-Smaller"> *</span> {% endif %}
+              </label>
+              <select name="{{ field.id }}" id="{{ field.id }}" type="{{ field.type }}" class="gBackInStock-Form-Select" {% if field.required %}presence{% endif %}>
+                  {% if field.placeholder %} <option value="">{{ field.placeholder }}</option> {% endif %}
+                  {% for option in options %}
+                      <option value="{{ option }}" {% if field.defaultValue == option %}selected="selected"{% endif %}> {{ option }} </option>
+                  {% endfor %}
+              </select>
+              <small class='gBackInStock-messages'></small>
+          </div>
+
+      {% when 'checkbox' %}
+          {% assign options = field.options | stringToArray %}
+          <div class="gBackInStock-Form-Control">
+              <label for="{{ field.id }}" class="gBackInStock-Label">
+                  {% if field.showLabel %} <span class="gBackInStock-Label-Content">{{ translation[fieldLabel] }}</span> {% endif %}
+                  {% if field.required and showRequired %} <span class="gBackInStock-Text-Danger gBackInStock-Text-Smaller"> *</span> {% endif %}
+              </label>
+              <ul class='gBackInStock-List-Control gBackInStock-Flex-Wrap' data-default="{{ field.defaultValue }}">
+                  {% for option in options %}
+                      {% assign uniqueId = field.id | append : '-' | append: option %}
+                      <li class="gBackInStock-List-Item {{ inlineOptionClass }}">
+                          <div class="gBackInStock-Checkbox-Wrapper">
+                              <input class="gBackInStock-Checkbox-Input" id="{{ uniqueId }}" type="{{ field.type }}" name="{{ field.id }}" value="{{ option }}" {% if field.defaultValue contains option %} checked {% endif %} {% if field.required %}presence{% endif %} />
+                              <label class="gBackInStock-Checkbox-Label" for="{{ uniqueId }}"><span class="gBackInStock-Label-Content">{{ option }}</span></label>
+                          </div>
+                      </li>
+                  {% endfor %}
+              </ul>
+              <small class='gBackInStock-messages'></small>
+          </div>
+
+      {% when 'radio' %}
+          {% assign options = field.options | stringToArray %}
+          <div class="gBackInStock-Form-Control">
+              <label for="{{ field.id }}" class="gBackInStock-Label">
+                  {% if field.showLabel %} <span class="gBackInStock-Label-Content">{{ translation[fieldLabel] }}</span> {% endif %}
+                  {% if field.required and showRequired %} <span class="gBackInStock-Text-Danger gBackInStock-Text-Smaller"> *</span> {% endif %}
+              </label>
+              <ul class='gBackInStock-List-Control gBackInStock-Flex-Wrap' data-default="{{ field.defaultValue }}">
+                  {% for option in options %}
+                      {% assign uniqueId = field.id | append : '-' | append: option %}
+                      <li class="gBackInStock-List-Item {{ inlineOptionClass }}">
+                          <div class="gBackInStock-Radio-Wrapper">
+                              <input class="gBackInStock-Radio-Input" id="{{ uniqueId }}" type="{{ field.type }}" name="{{ field.id }}" value="{{ option }}" {% if field.defaultValue == option %} checked {% endif %} {% if field.required %}presence{% endif %} />
+                              <label class="gBackInStock-Radio-Label" for="{{ uniqueId }}"><span class="gBackInStock-Label-Content">{{ option }}</span></label>
+                          </div>
+                      </li>
+                  {% endfor %}
+              </ul>
+              <small class='gBackInStock-messages'></small>
+          </div>
+
+      {% when 'acceptTerms' %}
+          <div class="gBackInStock-Form-Control">
+              <div class="gBackInStock-Checkbox-Wrapper" data-defaut="{{ field.defaultSelected }}">
+                  <input class="gBackInStock-Checkbox-Input" id="{{ field.id }}" type="checkbox" name="{{ field.id }}" value="{{ field.value }}" {% if field.defaultSelected %} checked {% endif %} {% if field.required %}presence{% endif %} />
+                  <label class="gBackInStock-Checkbox-Label" for="{{ field.id }}">
+                      <span class="gBackInStock-Label-Content">{{ field.label }}</span>
+                      {% if field.required and showRequired %} <span class="gBackInStock-Text-Danger gBackInStock-Text-Smaller"> *</span> {% endif %}
+                  </label>
+                  <small class="messages"></small>
+              </div>
+          </div>
+
+        {% when 'phone' %}
+          {% if showBisSms %}
+              <div class="gBackInStock-Form-Control">
+                  <label for="{{ field.id }}" class="gBackInStock-Label">
+                      {% if field.showLabel %} <span class="gBackInStock-Label-Content" data-label="{{ translation[fieldLabel] }}" data-placeholder="{{ fieldPlaceholder }}">{{ translation[fieldLabel] }}</span> {% endif %}
+                      {% if field.required and showRequired %} <span class="gBackInStock-Text-Danger gBackInStock-Text-Smaller"> *</span> {% endif %}
+                  </label>
+                  <input type="{{ field.type }}" name="{{ field.id }}" id="{{ field.id }}" class="gBackInStock-Form-Content-Input" placeholder="{{ translation[fieldPlaceholder] }}" {% if field.required %}presence{% endif %} 
+                      {% if field.validateIntlPhone %}validate{% endif %}
+                      {% if variant.inventory_quantity <= 0 and variant.available == config.checkSelling %}
+                          data-selling="stop" 
+                      {% elsif variant.inventory_quantity <= 0 and config.checkSelling contains 'both' %} 
+                          data-selling="both"
+                      {% else %} 
+                          data-selling="continue"
+                          disabled="disabled" 
+                      {% endif %} 
+                  />
+                  <small class='gBackInStock-messages'></small>
+              </div>
+          {% endif %}
+
+      {% when 'hidden' %}
+          <div class="gBackInStock-Form-Control gPreorderHidden">
+              <label for="{{ field.id }}" class="gBackInStock-Label">
+                  <span class="gBackInStock-Label-Content" data-label="{{ translation[fieldLabel] }}" data-placeholder="{{ fieldPlaceholder }}">{{ translation[fieldLabel] }}</span>
+              </label>
+              {% if field.dataTypeValue == 'fixed' %}
+                  <input type="hidden" data-type="{{field.dataTypeValue}}" id="{{field.id}}" name="{{field.id}}" value="{{field.fixedValue}}">
+              {% else %}
+                  <input type="hidden" data-type="{{field.dataTypeValue}}" data-connected-id="{{ field.whenElement }}" id="{{field.id}}" name="{{field.id}}" data-default-value="{{field.dynamicValue}}" value="{{field.dynamicValue}}" >
+              {% endif %}
+          </div>
+
+      {% else %}
+  {% endcase %}
+</script> 
+
+{% endraw %}
