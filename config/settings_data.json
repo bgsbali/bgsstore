@@ -11,6 +11,7 @@
   "current": {
     "logo": "shopify://shop_images/Recepit_Logo_1.png",
     "logo_width": 80,
+    "favicon": "shopify://shop_images/Recepit_Logo_1.png",
     "type_header_font": "oswald_n5",
     "heading_scale": 140,
     "type_body_font": "figtree_n5",
@@ -20,7 +21,7 @@
     "spacing_grid_horizontal": 40,
     "spacing_grid_vertical": 40,
     "animations_reveal_on_scroll": true,
-    "animations_hover_elements": "none",
+    "animations_hover_elements": "default",
     "buttons_border_thickness": 1,
     "buttons_border_opacity": 100,
     "buttons_radius": 0,
@@ -200,7 +201,7 @@
       },
       "scheme-992729e5-b01e-4b37-ae12-c85df0a823b1": {
         "settings": {
-          "background": "#6A6A6A",
+          "background": "#6a6a6a",
           "background_gradient": "",
           "text": "#ffffff",
           "button": "#e3fc02",
@@ -413,5 +414,8 @@
         }
       }
     }
+  },
+  "platform_customizations": {
+    "custom_css": []
   }
 }
