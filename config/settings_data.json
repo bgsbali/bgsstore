@@ -414,5 +414,10 @@
         }
       }
     }
+  },
+  "platform_customizations": {
+    "custom_css": [
+      "body {background: #fff !important;}"
+    ]
   }
 }
