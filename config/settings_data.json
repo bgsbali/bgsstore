@@ -199,7 +199,7 @@
           "text": "#000000",
           "button": "#ffffff",
           "button_label": "#1f1f21",
-          "secondary_button_label": "#000000",
+          "secondary_button_label": "#ffc65b",
           "shadow": "#ffffff"
         }
       },
@@ -208,7 +208,7 @@
           "background": "#1f1f21",
           "background_gradient": "",
           "text": "#ffffff",
-          "button": "#ffffff",
+          "button": "#ffc65b",
           "button_label": "#1f1f21",
           "secondary_button_label": "#ffffff",
           "shadow": "#ffffff"
