@@ -11,6 +11,7 @@
   "current": {
     "logo": "shopify://shop_images/Recepit_Logo_1.png",
     "logo_width": 80,
+    "favicon": "shopify://shop_images/Logo_Jpeg.jpg",
     "type_header_font": "oswald_n5",
     "heading_scale": 140,
     "type_body_font": "figtree_n5",
@@ -193,12 +194,12 @@
     "color_schemes": {
       "scheme-1": {
         "settings": {
-          "background": "#1f1f21",
+          "background": "#ffffff",
           "background_gradient": "",
-          "text": "#ffffff",
-          "button": "#e3fc02",
+          "text": "#000000",
+          "button": "#ffffff",
           "button_label": "#1f1f21",
-          "secondary_button_label": "#e3fc02",
+          "secondary_button_label": "#000000",
           "shadow": "#ffffff"
         }
       },
