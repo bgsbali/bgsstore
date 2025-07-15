@@ -417,7 +417,7 @@
   },
   "platform_customizations": {
     "custom_css": [
-      "body {background: #fff !important; color: #111 !important;}"
+      "color-scheme-1 {background: #fff !important; color: #111 !important;}"
     ]
   }
 }
