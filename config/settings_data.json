@@ -417,7 +417,7 @@
   },
   "platform_customizations": {
     "custom_css": [
-      "body {background: #fff !important;}"
+      "body,.gradient {background: #fff !important; color: #111}"
     ]
   }
 }
